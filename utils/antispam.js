@@ -60,14 +60,16 @@ function isTooFast(body) {
   const t = parseInt(body._t || '0', 10);
   if (!t) return false; // si el form no manda timestamp, no penalizamos
   const elapsed = Date.now() - t;
-  return elapsed < 3000;   // menos de 3 segundos rellenando = bot
+  return elapsed < 5000;   // menos de 5 segundos rellenando = bot
 }
 
 // ── Rate limit por IP (en memoria, suficiente para una sola
 //    instancia de Node) ─────────────────────────────────────────
 const recentByIp = new Map();
-const RATE_WINDOW = 60 * 1000; // 1 minuto
-const RATE_LIMIT  = 5;          // máx 5 envíos por IP en ese minuto
+const RATE_WINDOW   = 60 * 1000;        // 1 minuto
+const RATE_LIMIT    = 3;                 // máx 3 envíos por IP en ese minuto
+const DAILY_WINDOW  = 24 * 60 * 60 * 1000;
+const DAILY_LIMIT   = 3;                 // máx 3 envíos por IP en 24h
 
 function getClientIp(req) {
   // server.js tiene app.set('trust proxy', 1) → req.ip ya respeta
@@ -81,14 +83,21 @@ function getClientIp(req) {
 function checkRateLimit(req) {
   const ip = getClientIp(req);
   const now = Date.now();
-  const arr = (recentByIp.get(ip) || []).filter(t => now - t < RATE_WINDOW);
-  if (arr.length >= RATE_LIMIT) return true;
+  // Filtramos al rango más largo (24h) para reutilizar el array
+  const arr = (recentByIp.get(ip) || []).filter(t => now - t < DAILY_WINDOW);
+
+  // Límite diario (3 / IP / 24h)
+  if (arr.length >= DAILY_LIMIT) return true;
+  // Límite por minuto (3 / IP / 60s)
+  const lastMinute = arr.filter(t => now - t < RATE_WINDOW);
+  if (lastMinute.length >= RATE_LIMIT) return true;
+
   arr.push(now);
   recentByIp.set(ip, arr);
   // GC simple para que el Map no crezca infinito
-  if (recentByIp.size > 1000) {
+  if (recentByIp.size > 5000) {
     for (const [k, v] of recentByIp.entries()) {
-      if (!v.some(t => now - t < RATE_WINDOW)) recentByIp.delete(k);
+      if (!v.some(t => now - t < DAILY_WINDOW)) recentByIp.delete(k);
     }
   }
   return false;

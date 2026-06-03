@@ -235,20 +235,31 @@ function teamEmail() {
   return process.env.EMAIL_TO || 'ds.qnk.88@gmail.com';
 }
 
+// ── Notas sobre envíos ──────────────────────────────────────────
+// Para ahorrar cuota de Resend (free tier = 3000/mes, 100/día),
+// SOLO se envía 1 email por solicitud: el interno al equipo.
+// La auto-respuesta al cliente queda comentada y se activa con la
+// variable de entorno SEND_CLIENT_COPY=1 si en algún momento se
+// vuelve a necesitar. El cliente igualmente ve la página "/gracias"
+// confirmando el envío.
+
+const CLIENT_COPY_ENABLED = process.env.SEND_CLIENT_COPY === '1';
+
 async function sendContactEmail(data) {
-  // 1) Email interno al equipo
   const internal = await sendViaResend({
     to:      teamEmail(),
     subject: `Contacto solicitado por ${data.nombre}`,
     html:    buildInternalContactHtml(data),
     replyTo: data.email
   });
-  // 2) Copia al cliente
-  const copy = await sendViaResend({
-    to:      data.email,
-    subject: 'Hemos recibido tu mensaje · Cars & Campers BCN',
-    html:    buildClientCopyHtml(data, 'contacto')
-  });
+  let copy = null;
+  if (CLIENT_COPY_ENABLED) {
+    copy = await sendViaResend({
+      to:      data.email,
+      subject: 'Hemos recibido tu mensaje · Cars & Campers BCN',
+      html:    buildClientCopyHtml(data, 'contacto')
+    });
+  }
   return { internal, copy };
 }
 
@@ -259,11 +270,14 @@ async function sendCustomCarEmail(data) {
     html:    buildInternalCustomCarHtml(data),
     replyTo: data.email
   });
-  const copy = await sendViaResend({
-    to:      data.email,
-    subject: 'Hemos recibido tu solicitud a la carta · Cars & Campers BCN',
-    html:    buildClientCopyHtml(data, 'a-la-carta')
-  });
+  let copy = null;
+  if (CLIENT_COPY_ENABLED) {
+    copy = await sendViaResend({
+      to:      data.email,
+      subject: 'Hemos recibido tu solicitud a la carta · Cars & Campers BCN',
+      html:    buildClientCopyHtml(data, 'a-la-carta')
+    });
+  }
   return { internal, copy };
 }
 
@@ -274,11 +288,14 @@ async function sendPopTopRoofEmail(data) {
     html:    buildInternalPopTopRoofHtml(data),
     replyTo: data.email
   });
-  const copy = await sendViaResend({
-    to:      data.email,
-    subject: 'Hemos recibido tu solicitud · Techo elevable · Cars & Campers BCN',
-    html:    buildClientCopyHtml(data, 'techo-elevable')
-  });
+  let copy = null;
+  if (CLIENT_COPY_ENABLED) {
+    copy = await sendViaResend({
+      to:      data.email,
+      subject: 'Hemos recibido tu solicitud · Techo elevable · Cars & Campers BCN',
+      html:    buildClientCopyHtml(data, 'techo-elevable')
+    });
+  }
   return { internal, copy };
 }
 
