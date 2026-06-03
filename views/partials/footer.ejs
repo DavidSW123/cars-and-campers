@@ -80,5 +80,8 @@
 <%- include('whatsapp-float') %>
 
 <script src="/js/main.js"></script>
+<% if (turnstileSiteKey) { %>
+  <script src="/js/turnstile-forms.js" defer></script>
+<% } %>
 </body>
 </html>

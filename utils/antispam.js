@@ -150,7 +150,16 @@ async function detectSpam(req, body, textFields = []) {
   // 1. Cloudflare Turnstile (si está configurado, es la primera barrera)
   const turnstileToken = body['cf-turnstile-response'] || body.cf_turnstile_response;
   const tsResult = await verifyTurnstile(turnstileToken, ip);
-  if (!tsResult.ok) reasons.push('turnstile');
+  if (!tsResult.ok) {
+    reasons.push('turnstile');
+    console.warn('[antispam] Turnstile rechazó:', {
+      ip,
+      reason: tsResult.reason,
+      errors: tsResult.errors,
+      tokenPresent: !!turnstileToken,
+      tokenLen: turnstileToken ? turnstileToken.length : 0
+    });
+  }
 
   // 2. Honeypot
   if (body._honey) reasons.push('honeypot');
@@ -186,6 +195,8 @@ async function detectSpam(req, body, textFields = []) {
       email,
       preview: allText.slice(0, 120)
     });
+  } else {
+    console.info('[antispam] PASS', { ip, route: req.originalUrl, email });
   }
   return { isSpam, reasons };
 }
