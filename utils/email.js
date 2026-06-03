@@ -236,14 +236,16 @@ function teamEmail() {
 }
 
 // ── Notas sobre envíos ──────────────────────────────────────────
-// Para ahorrar cuota de Resend (free tier = 3000/mes, 100/día),
-// SOLO se envía 1 email por solicitud: el interno al equipo.
-// La auto-respuesta al cliente queda comentada y se activa con la
-// variable de entorno SEND_CLIENT_COPY=1 si en algún momento se
-// vuelve a necesitar. El cliente igualmente ve la página "/gracias"
-// confirmando el envío.
+// Por defecto se envían 2 emails por solicitud:
+//   1) Interno al equipo (siempre que se llega aquí, ya pasó el filtro
+//      antispam → es contacto legítimo).
+//   2) Auto-respuesta de confirmación al cliente.
+//
+// Si por cualquier motivo (cuota Resend, prueba, ...) se quiere
+// desactivar la auto-respuesta, basta poner en el .env:
+//   SEND_CLIENT_COPY=0
 
-const CLIENT_COPY_ENABLED = process.env.SEND_CLIENT_COPY === '1';
+const CLIENT_COPY_ENABLED = process.env.SEND_CLIENT_COPY !== '0';
 
 async function sendContactEmail(data) {
   const internal = await sendViaResend({

@@ -46,6 +46,8 @@ app.use(async (req, res, next) => {
 app.use(async (req, res, next) => {
   res.locals.user        = req.session.user || null;
   res.locals.currentPath = req.path;
+  // Sitekey de Cloudflare Turnstile (string vacío si no está configurado)
+  res.locals.turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || '';
   if (req.session.flash) {
     res.locals.flash = req.session.flash;
     delete req.session.flash;

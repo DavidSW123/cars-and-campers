@@ -68,8 +68,8 @@ router.get('/contacto', (req, res) => {
 router.post('/contacto', async (req, res) => {
   const f = req.body || {};
 
-  // ── ANTISPAM: honeypot + tiempo + rate-limit + keywords + ... ──
-  const spam = detectSpam(req, f, ['nombre', 'mensaje']);
+  // ── ANTISPAM: Turnstile + honeypot + tiempo + rate-limit + ... ─
+  const spam = await detectSpam(req, f, ['nombre', 'mensaje']);
   if (spam.isSpam) {
     // Renderizamos "gracias" igualmente para no dar pistas al bot,
     // pero NO mandamos email a Resend.

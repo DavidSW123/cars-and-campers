@@ -17,8 +17,8 @@ router.get('/vehiculos-a-la-carta', (req, res) => {
 router.post('/vehiculos-a-la-carta', async (req, res) => {
   const f = req.body || {};
 
-  // ── ANTISPAM ────────────────────────────────────────────────
-  const spam = detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
+  // ── ANTISPAM (Turnstile + honeypot + tiempo + ... ) ─────────
+  const spam = await detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
   if (spam.isSpam) {
     return res.render('gracias', {
       title: '¡Solicitud recibida!',
@@ -76,8 +76,8 @@ router.get('/techos-elevables', (req, res) => {
 router.post('/techos-elevables', async (req, res) => {
   const f = req.body || {};
 
-  // ── ANTISPAM ────────────────────────────────────────────────
-  const spam = detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
+  // ── ANTISPAM (Turnstile + honeypot + tiempo + ... ) ─────────
+  const spam = await detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
   if (spam.isSpam) {
     return res.render('gracias', {
       title: '¡Presupuesto solicitado!',

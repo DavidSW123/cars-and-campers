@@ -52,6 +52,11 @@
   <!-- Estilos -->
   <link rel="stylesheet" href="/css/style.css?v=20260514c">
 
+  <!-- Cloudflare Turnstile (CAPTCHA invisible para los formularios) -->
+  <% if (turnstileSiteKey) { %>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <% } %>
+
   <!-- Schema.org: organización (mejora cómo Google entiende el sitio) -->
   <script type="application/ld+json">
   {

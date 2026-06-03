@@ -103,34 +103,72 @@ function checkRateLimit(req) {
   return false;
 }
 
+// ── Cloudflare Turnstile (verificación server-side) ─────────────
+// Si TURNSTILE_SECRET_KEY está configurada, exigimos un token válido
+// para cada submission. El widget de Turnstile (en el front) lo
+// genera al cargar la página y lo envía con name="cf-turnstile-response".
+async function verifyTurnstile(token, ip) {
+  if (!process.env.TURNSTILE_SECRET_KEY) return { ok: true, skipped: true };
+  if (!token) return { ok: false, reason: 'no_token' };
+
+  try {
+    const params = new URLSearchParams();
+    params.append('secret', process.env.TURNSTILE_SECRET_KEY);
+    params.append('response', token);
+    if (ip) params.append('remoteip', ip);
+
+    const resp = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      { method: 'POST', body: params }
+    );
+    const data = await resp.json();
+    if (!data.success) {
+      return { ok: false, reason: 'turnstile_failed', errors: data['error-codes'] };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('[antispam] error verificando Turnstile:', err.message);
+    // Si Cloudflare está caído, no bloqueamos al usuario
+    return { ok: true, skipped: true, error: err.message };
+  }
+}
+
 // ── API principal ───────────────────────────────────────────────
 /**
  * Inspecciona el envío y devuelve { isSpam, reasons }.
+ * Async porque Turnstile requiere una llamada HTTPS a Cloudflare.
+ *
  * @param req  - express Request
  * @param body - normalmente req.body
  * @param textFields - lista de claves del body que contienen texto libre
  *                    (donde tiene sentido buscar URLs / keywords / etc.)
  */
-function detectSpam(req, body, textFields = []) {
+async function detectSpam(req, body, textFields = []) {
   const reasons = [];
+  const ip = getClientIp(req);
 
-  // 1. Honeypot
+  // 1. Cloudflare Turnstile (si está configurado, es la primera barrera)
+  const turnstileToken = body['cf-turnstile-response'] || body.cf_turnstile_response;
+  const tsResult = await verifyTurnstile(turnstileToken, ip);
+  if (!tsResult.ok) reasons.push('turnstile');
+
+  // 2. Honeypot
   if (body._honey) reasons.push('honeypot');
 
-  // 2. Demasiado rápido (form rellenado en <3s)
+  // 3. Demasiado rápido (form rellenado en <5s)
   if (isTooFast(body)) reasons.push('too_fast');
 
-  // 3. Rate limit por IP
+  // 4. Rate limit por IP
   if (checkRateLimit(req)) reasons.push('rate_limit');
 
-  // 4. Inspección de los textos libres
+  // 5. Inspección de los textos libres
   const allText = textFields.map(k => body[k] || '').join(' ');
   if (allText.length > 5000)               reasons.push('too_long');
   if (countUrls(allText) > 2)              reasons.push('too_many_urls');
   if (hasSpamKeywords(allText))            reasons.push('spam_keywords');
   if (hasSuspiciousAlphabet(allText))      reasons.push('suspicious_alphabet');
 
-  // 5. Email manifiestamente bot (dominios de "tempmail" más usados)
+  // 6. Email manifiestamente bot (dominios de "tempmail" más usados)
   const email = (body.email || '').toLowerCase();
   const TEMP_MAIL_DOMAINS = [
     'tempmail', 'guerrillamail', '10minutemail', 'mailinator',
@@ -142,7 +180,7 @@ function detectSpam(req, body, textFields = []) {
   const isSpam = reasons.length > 0;
   if (isSpam) {
     console.warn('[antispam] BLOCKED', {
-      ip: getClientIp(req),
+      ip,
       route: req.originalUrl,
       reasons,
       email,
@@ -159,5 +197,6 @@ module.exports = {
   countUrls,
   isTooFast,
   checkRateLimit,
-  getClientIp
+  getClientIp,
+  verifyTurnstile
 };
