@@ -1,5 +1,6 @@
 const express = require('express');
 const { sendCustomCarEmail, sendPopTopRoofEmail } = require('../utils/email');
+const { detectSpam } = require('../utils/antispam');
 const router  = express.Router();
 
 // ── GET /servicios — landing con 2 cards ─────────────────────────
@@ -15,7 +16,17 @@ router.get('/vehiculos-a-la-carta', (req, res) => {
 // ── POST /servicios/vehiculos-a-la-carta ─────────────────────────
 router.post('/vehiculos-a-la-carta', async (req, res) => {
   const f = req.body || {};
-  if (f._honey) return res.redirect('/servicios/vehiculos-a-la-carta');
+
+  // ── ANTISPAM ────────────────────────────────────────────────
+  const spam = detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
+  if (spam.isSpam) {
+    return res.render('gracias', {
+      title: '¡Solicitud recibida!',
+      tipo: 'a-la-carta',
+      nombre: (f.nombre || '').trim() || 'amigo',
+      email:  (f.email  || '').trim()
+    });
+  }
 
   const required = ['nombre', 'email', 'telefono', 'acepta_costes'];
   const errors = [];
@@ -64,7 +75,17 @@ router.get('/techos-elevables', (req, res) => {
 // ── POST /servicios/techos-elevables ─────────────────────────────
 router.post('/techos-elevables', async (req, res) => {
   const f = req.body || {};
-  if (f._honey) return res.redirect('/servicios/techos-elevables');
+
+  // ── ANTISPAM ────────────────────────────────────────────────
+  const spam = detectSpam(req, f, ['nombre', 'marca', 'modelo', 'comentarios']);
+  if (spam.isSpam) {
+    return res.render('gracias', {
+      title: '¡Presupuesto solicitado!',
+      tipo:  'techo-elevable',
+      nombre: (f.nombre || '').trim() || 'amigo',
+      email:  (f.email  || '').trim()
+    });
+  }
 
   const errors = [];
   if (!f.nombre   || !f.nombre.trim())   errors.push('nombre');

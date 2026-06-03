@@ -1,6 +1,7 @@
 const express          = require('express');
 const { getOne, getAll } = require('../database/db');
 const { sendContactEmail } = require('../utils/email');
+const { detectSpam }   = require('../utils/antispam');
 const router           = express.Router();
 
 router.get('/', async (req, res) => {
@@ -66,7 +67,19 @@ router.get('/contacto', (req, res) => {
 
 router.post('/contacto', async (req, res) => {
   const f = req.body || {};
-  if (f._honey) return res.redirect('/contacto'); // honeypot anti-spam
+
+  // ── ANTISPAM: honeypot + tiempo + rate-limit + keywords + ... ──
+  const spam = detectSpam(req, f, ['nombre', 'mensaje']);
+  if (spam.isSpam) {
+    // Renderizamos "gracias" igualmente para no dar pistas al bot,
+    // pero NO mandamos email a Resend.
+    return res.render('gracias', {
+      title: '¡Mensaje recibido!',
+      tipo:  'contacto',
+      nombre: (f.nombre || '').trim() || 'amigo',
+      email:  (f.email  || '').trim()
+    });
+  }
 
   const errors = [];
   if (!f.nombre || !f.nombre.trim()) errors.push('nombre');
