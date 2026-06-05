@@ -263,6 +263,34 @@ router.post('/imagenes/:imageId/eliminar', async (req, res) => {
   res.redirect(`/admin/coches/${img.car_id}/editar`);
 });
 
+// ── Coche: marcar/desmarcar Super Destacado del mes ─────────────
+// Solo puede haber UNO activo. Si se marca, desmarcamos cualquier otro.
+router.post('/coches/:id/super-destacado', async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const car = await getOne('SELECT id, super_destacado, marca, modelo FROM cars WHERE id = ?', [id]);
+    if (!car) {
+      req.session.flash = { type: 'error', msg: 'Vehículo no encontrado.' };
+      return res.redirect('/admin/coches');
+    }
+    if (car.super_destacado) {
+      // Estaba marcado → desmarcar
+      await run('UPDATE cars SET super_destacado = 0 WHERE id = ?', [id]);
+      req.session.flash = { type: 'success', msg: `"${car.marca} ${car.modelo}" ya no es el Super Destacado.` };
+    } else {
+      // Marcar este, desmarcar los demás
+      await run('UPDATE cars SET super_destacado = 0');
+      await run('UPDATE cars SET super_destacado = 1 WHERE id = ?', [id]);
+      req.session.flash = { type: 'success', msg: `★ "${car.marca} ${car.modelo}" es ahora el Super Destacado del Mes.` };
+    }
+    res.redirect(req.get('referer') || '/admin/coches');
+  } catch (err) {
+    console.error(err);
+    req.session.flash = { type: 'error', msg: 'Error al actualizar Super Destacado.' };
+    res.redirect('/admin/coches');
+  }
+});
+
 // ── Imágenes: marcar principal ────────────────────────────────────
 router.post('/imagenes/:imageId/principal', async (req, res) => {
   const img = await getOne('SELECT * FROM car_images WHERE id = ?', [req.params.imageId]);

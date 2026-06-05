@@ -120,6 +120,15 @@ async function initDB() {
     }
   } catch (_) {}
 
+  // ── Migración: añadir columna 'super_destacado' a cars
+  // (sólo un coche debería tenerlo a 1 en cualquier momento)
+  try {
+    const carsCols = await getAll('PRAGMA table_info(cars)');
+    if (!carsCols.some(c => c.name === 'super_destacado')) {
+      await run("ALTER TABLE cars ADD COLUMN super_destacado INTEGER DEFAULT 0");
+    }
+  } catch (_) {}
+
   // ── Crear los dos administradores por defecto ─────────────────
   const admins = [
     {

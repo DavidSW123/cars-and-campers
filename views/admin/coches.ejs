@@ -25,7 +25,8 @@
               <th>KM</th>
               <th>Estado</th>
               <th>Fotos</th>
-              <th>Destacado</th>
+              <th>★</th>
+              <th style="text-align:center">Super Destacado</th>
               <th style="text-align:right">Acciones</th>
             </tr>
           </thead>
@@ -61,10 +62,25 @@
                 </td>
                 <td>
                   <% if (car.destacado) { %>
-                    <span style="color:var(--gold)">★ Sí</span>
+                    <span style="color:var(--gold)">★</span>
                   <% } else { %>
                     <span style="color:var(--text-muted)">–</span>
                   <% } %>
+                </td>
+                <td style="text-align:center">
+                  <form action="/admin/coches/<%= car.id %>/super-destacado" method="post" style="margin:0">
+                    <% if (car.super_destacado) { %>
+                      <button type="submit" class="btn-super-destacado is-active" title="Click para quitar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        SUPER
+                      </button>
+                    <% } else { %>
+                      <button type="submit" class="btn-super-destacado" title="Marcar como Super Destacado del Mes">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Marcar
+                      </button>
+                    <% } %>
+                  </form>
                 </td>
                 <td style="text-align:right">
                   <div class="table-actions">

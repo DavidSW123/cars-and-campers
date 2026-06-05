@@ -6,6 +6,16 @@ const router           = express.Router();
 
 router.get('/', async (req, res) => {
   try {
+    // Super Destacado del Mes (sólo uno marcado en la BD)
+    const superDestacado = await getOne(`
+      SELECT c.*,
+        (SELECT url FROM car_images WHERE car_id = c.id AND es_principal = 1 LIMIT 1) AS imagen_principal,
+        (SELECT url FROM car_images WHERE car_id = c.id AND (tipo = 'imagen' OR tipo IS NULL) ORDER BY orden LIMIT 1) AS imagen_primera
+      FROM cars c
+      WHERE c.super_destacado = 1 AND c.estado = 'disponible'
+      LIMIT 1
+    `);
+
     const featuredCars = await getAll(`
       SELECT c.*,
         (SELECT url FROM car_images WHERE car_id = c.id AND es_principal = 1 LIMIT 1) AS imagen_principal,
@@ -45,6 +55,7 @@ router.get('/', async (req, res) => {
 
     res.render('index', {
       title: 'Cars & Campers — Coches y autocaravanas seleccionados',
+      superDestacado,
       featuredCars,
       recentCoches,
       recentCampers,

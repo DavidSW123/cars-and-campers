@@ -55,6 +55,52 @@
 </section>
 
 <!-- ══════════════════════════════════════════════════════════════
+     SUPER DESTACADO DEL MES — banner "vivo"
+     ══════════════════════════════════════════════════════════════ -->
+<% if (typeof superDestacado !== 'undefined' && superDestacado) {
+     const sdPrecio = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(superDestacado.precio);
+     const sdKm     = (superDestacado.kilometraje || 0).toLocaleString('es-ES');
+     const sdImg    = superDestacado.imagen_principal || superDestacado.imagen_primera || '/img/car-placeholder.svg';
+     const sdSlug   = superDestacado.slug;
+%>
+<section class="super-destacado-banner">
+  <a href="/coches/<%= sdSlug %>" class="sd-link" aria-label="Ver <%= superDestacado.marca %> <%= superDestacado.modelo %>">
+    <div class="sd-bg" style="background-image:url('<%= sdImg %>')"></div>
+    <div class="sd-grad"></div>
+    <div class="sd-shine"></div>
+    <div class="sd-content container">
+      <div class="sd-badge">
+        <span class="sd-badge-dot"></span>
+        Super Destacado del Mes
+      </div>
+      <h2 class="sd-title">
+        <%= superDestacado.marca %> <%= superDestacado.modelo %>
+        <span class="sd-year"><%= superDestacado.anio %></span>
+      </h2>
+      <div class="sd-meta">
+        <span class="sd-meta-item"><strong><%= sdKm %></strong> km</span>
+        <span class="sd-sep"></span>
+        <span class="sd-meta-item"><%= superDestacado.combustible %></span>
+        <span class="sd-sep"></span>
+        <span class="sd-meta-item"><%= superDestacado.transmision %></span>
+        <% if (superDestacado.potencia) { %>
+          <span class="sd-sep"></span>
+          <span class="sd-meta-item"><strong><%= superDestacado.potencia %></strong> CV</span>
+        <% } %>
+      </div>
+      <div class="sd-row-bottom">
+        <div class="sd-price"><%= sdPrecio %></div>
+        <span class="sd-cta">
+          Ver vehículo
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </div>
+    </div>
+  </a>
+</section>
+<% } %>
+
+<!-- ══════════════════════════════════════════════════════════════
      SHOWCASE VISUAL — COCHES vs CAMPERS
      ══════════════════════════════════════════════════════════════ -->
 <section class="showcase-v2">

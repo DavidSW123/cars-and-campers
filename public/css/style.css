@@ -4255,3 +4255,185 @@ body.mobile-menu-open .hero-v2-eyebrow {
 body.disable-logo-transition .brand-logo-header .brand-mark {
   transition: none !important;
 }
+
+/* ═════════════════════════════════════════════════════════════════
+   SUPER DESTACADO DEL MES — banner "vivo"
+   ═════════════════════════════════════════════════════════════════ */
+.super-destacado-banner {
+  position: relative;
+  margin: 4rem 0;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.super-destacado-banner .sd-link {
+  position: relative;
+  display: block;
+  height: clamp(360px, 50vh, 520px);
+  text-decoration: none;
+  color: white;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+}
+.sd-bg {
+  position: absolute; inset: 0; z-index: 1;
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  transform: scale(1.05);
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.3, 1);
+  animation: sdKenBurns 22s ease-in-out infinite alternate;
+}
+@keyframes sdKenBurns {
+  from { transform: scale(1.05) translate(0, 0); }
+  to   { transform: scale(1.12) translate(-1.5%, -1%); }
+}
+.sd-link:hover .sd-bg { transform: scale(1.14); animation-play-state: paused; }
+.sd-grad {
+  position: absolute; inset: 0; z-index: 2;
+  background:
+    linear-gradient(135deg, rgba(15,20,25,0.78) 0%, rgba(15,20,25,0.35) 45%, rgba(15,20,25,0.85) 100%),
+    radial-gradient(circle at 75% 30%, rgba(185,28,28,0.4) 0%, transparent 50%);
+}
+.sd-shine {
+  position: absolute; inset: 0; z-index: 3;
+  background: linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.32) 50%, rgba(255,255,255,0.18) 55%, transparent 65%, transparent 100%);
+  background-size: 220% 100%;
+  background-position: 0% 0%;
+  animation: sdShine 5.5s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+@keyframes sdShine {
+  0%, 30%  { background-position: 100% 0%; }
+  60%, 100%{ background-position: -50% 0%; }
+}
+.sd-content {
+  position: relative; z-index: 4;
+  height: 100%;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem 2rem;
+}
+.sd-badge {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  align-self: flex-start;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  color: white;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  box-shadow: 0 8px 24px rgba(185,28,28,0.4);
+  margin-bottom: 1rem;
+  animation: sdBadgePulse 2.4s ease-in-out infinite;
+}
+@keyframes sdBadgePulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(185,28,28,0.4); }
+  50%      { box-shadow: 0 12px 36px rgba(185,28,28,0.75); }
+}
+.sd-badge-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.9);
+  animation: sdDotPulse 1.6s ease-in-out infinite;
+}
+@keyframes sdDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.9); }
+  50%      { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+}
+.sd-title {
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: white;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+.sd-title .sd-year {
+  font-weight: 400;
+  opacity: 0.85;
+  margin-left: 0.3rem;
+}
+.sd-meta {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 0.5rem 1rem;
+  font-size: 0.95rem; color: rgba(255,255,255,0.92);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.sd-meta-item strong { color: white; font-weight: 700; }
+.sd-sep {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+}
+.sd-row-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.sd-price {
+  font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.55);
+  letter-spacing: -0.02em;
+}
+.sd-cta {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  background: white;
+  color: #0f1419;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, gap 0.3s ease;
+}
+.sd-link:hover .sd-cta {
+  transform: translateY(-2px);
+  gap: 0.85rem;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 640px) {
+  .super-destacado-banner { margin: 2rem 1rem; border-radius: 1rem; }
+  .super-destacado-banner .sd-link { height: clamp(320px, 60vh, 440px); border-radius: 1rem; }
+  .sd-content { padding: 1.5rem 1.25rem; }
+  .sd-meta { font-size: 0.85rem; gap: 0.4rem 0.75rem; }
+  .sd-row-bottom { gap: 1rem; }
+}
+
+/* ── Botón Super Destacado en el listado del admin ─────────── */
+.btn-super-destacado {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-super-destacado:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  border-style: solid;
+}
+.btn-super-destacado.is-active {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  border: 1px solid #b91c1c;
+  color: white;
+  box-shadow: 0 4px 14px rgba(185,28,28,0.35);
+  animation: sdBadgePulse 2.4s ease-in-out infinite;
+}
+.btn-super-destacado.is-active:hover {
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
+  color: white;
+}
